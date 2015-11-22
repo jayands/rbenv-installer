@@ -29,6 +29,7 @@ PLUGINS=(
   rbenv/rbenv-each
   sstephenson/rbenv-gem-rehash
   yyuu/rbenv-ccache
+  sstephenson/rbenv-default-gems
 )
 
 for plugin in ${PLUGINS[@]} ; do
