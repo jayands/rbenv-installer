@@ -23,14 +23,25 @@ else
 fi
 
 # Install plugins:
-PLUGINS=(
-  sstephenson/ruby-build
-  rkh/rbenv-update
-  rbenv/rbenv-each
-  sstephenson/rbenv-gem-rehash
-  yyuu/rbenv-ccache
-  sstephenson/rbenv-default-gems
-)
+if [ -z "${RBENV_INSTALLER_DEFLT_PLUGNS}" ] ; then
+  RBENV_INSTALLER_DEFLT_PLUGNS="$HOME/.rbenv-installer-default-plugins"
+fi
+
+if [ -s "$RBENV_INSTALLER_DEFLT_PLUGNS" ] ; then
+  PLUGINS=$(<"$RBENV_INSTALLER_DEFLT_PLUGNS")
+else
+  PLUGINS=(
+    sstephenson/rbenv-vars
+    sstephenson/ruby-build
+    sstephenson/rbenv-default-gems
+    sstephenson/rbenv-gem-rehash
+    fesplugas/rbenv-installer
+    fesplugas/rbenv-bootstrap
+    rkh/rbenv-update
+    rkh/rbenv-whatis
+    rkh/rbenv-use
+  )
+fi
 
 for plugin in ${PLUGINS[@]} ; do
 
