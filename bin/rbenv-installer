@@ -6,8 +6,19 @@ if [ ! $(which git) ]; then
   exit 1
 fi
 
+#check for root
+if [ "x$(whoami)" == "xroot" ]; then
+    HAS_ROOT='true'
+else
+    HAS_ROOT='false'
+fi
+
 if [ -z "${RBENV_ROOT}" ]; then
-  RBENV_ROOT="$HOME/.rbenv"
+    if [ "x$HAS_ROOT" != "xtrue" ]; then
+        RBENV_ROOT="$HOME/.rbenv"
+    else
+        RBENV_ROOT="/opt/local/rbenv"
+    fi
 fi
 
 # Install rbenv:
@@ -24,10 +35,17 @@ fi
 
 # Install plugins:
 if [ -z "${RBENV_INSTALLER_DEFLT_PLUGNS}" ] ; then
-  RBENV_INSTALLER_DEFLT_PLUGNS="$HOME/.rbenv-installer-default-plugins"
+    if [[ "x$HAS_ROOT" == "xtrue" ]]; then
+        RBENV_INSTALLER_DEFLT_PLUGNS="/etc/rbenv/installer-default-plugins"
+    else
+        RBENV_INSTALLER_DEFLT_PLUGNS="$HOME/.rbenv-installer-default-plugins"
+    fi
 fi
 
 if [ -s "$RBENV_INSTALLER_DEFLT_PLUGNS" ] ; then
+    if [ ! -d "$(dirname $RBENV_ROOT)"]; then
+        mkdir -p "$(dirname $RBENV_ROOT)"
+    fi
   PLUGINS=$(<"$RBENV_INSTALLER_DEFLT_PLUGNS")
 else
   PLUGINS=(
@@ -59,18 +77,26 @@ for plugin in ${PLUGINS[@]} ; do
 
 done
 
-# Show help if `.rbenv` is not in the path:
+# Show help if `rbenv` is not in the path:
 if [ ! $(which rbenv) ]; then
   echo "
 Seems you still have not added 'rbenv' to the load path:
 
 # ~/.bash_profile:
 
-export RBENV_ROOT=\"\${HOME}/.rbenv\"
+export RBENV_ROOT=\"$RBENV_ROOT\"
 
 if [ -d \"\${RBENV_ROOT}\" ]; then
   export PATH=\"\${RBENV_ROOT}/bin:\${PATH}\"
   eval \"\$(rbenv init -)\"
 fi
+
+To add your own list of default plugins, edit
+
+$RBENV_INSTALLER_DEFLT_PLUGNS
+
+(Create it if it doesn't exist) and place your list of
+plugins, separated by whitespace, then run this script
+with the same call from this time.
 "
 fi
